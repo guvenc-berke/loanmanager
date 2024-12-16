@@ -1,0 +1,89 @@
+openapi: 3.0.0
+info:
+  title: ING Hubs Case Study Loan API
+  description: A simple API to manage loans.
+  version: 1.0.0
+
+paths:
+  /loan:
+    post:
+      operationId: createLoan
+      tags:
+        - loan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLoanRequest'
+      responses:
+        200:
+          description: Loan successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateLoanResponse'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+    CreateLoanRequest:
+      type: object
+      required:
+        - amount
+        - interestRate
+        - numberOfInstallments
+      properties:
+        amount:
+          type: number
+        interestRate:
+          type: number
+          format: double
+          minimum: 0.1
+          maximum: 0.5
+        numberOfInstallments:
+          type: integer
+    CreateLoanResponse:
+      type: object
+      properties:
+        id:
+          type: number
+          format: int64
+        amount:
+          type: number
+        createDate:
+          type: string
+        installments:
+          type: array
+          $ref: '#/components/schemas/InstallmentItem'
+    InstallmentItem:
+      type: object
+      properties:
+        dueDate:
+          type: string
+        amount:
+          type: number
