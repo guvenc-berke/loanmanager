@@ -31,4 +31,8 @@ public class LoanInstallment {
 
     @Column(name = "IS_PAID")
     private boolean isPaid;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "loan_id")
+    private Loan loan;
 }

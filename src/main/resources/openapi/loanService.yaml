@@ -10,6 +10,11 @@ paths:
       operationId: createLoan
       tags:
         - loan
+      parameters:
+        - in: query
+          name: userId
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -22,35 +27,80 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateLoanResponse'
-        400:
-          description: Bad request
+                $ref: '#/components/schemas/LoanResponse'
+  /loan/list:
+    get:
+      operationId: listLoans
+      tags:
+        - loan
+      parameters:
+        - in: query
+          name: userId
+          schema:
+            type: string
+        - in: query
+          name: numberOfInstallments
+          schema:
+            type: integer
+        - in: query
+          name: isPaid
+          schema:
+            type: boolean
+      responses:
+        200:
+          description: Loans successfully listed
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        401:
-          description: Unauthorized
+                type: array
+                items:
+                  $ref: '#/components/schemas/LoanResponse'
+  /loan/installments:
+    get:
+      operationId: getInstallments
+      tags:
+        - loan
+      parameters:
+        - in: query
+          name: userId
+          schema:
+            type: string
+        - in: query
+          name: loanId
+          schema:
+            type: string
+          required: true
+      responses:
+        200:
+          description: Loans successfully listed
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        500:
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                type: array
+                items:
+                  $ref: '#/components/schemas/InstallmentDetail'
+  /loan/pay:
+    post:
+      operationId: payLoan
+      tags:
+        - loan
+      parameters:
+        - in: query
+          name: userId
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PayLoanRequest'
+      responses:
+        200:
+          description: Loan is successfully paid
 
 components:
   schemas:
-    ErrorResponse:
-      type: object
-      properties:
-        code:
-          type: string
-        message:
-          type: string
     CreateLoanRequest:
       type: object
       required:
@@ -67,19 +117,50 @@ components:
           maximum: 0.5
         numberOfInstallments:
           type: integer
-    CreateLoanResponse:
+    PayLoanRequest:
+      type: object
+      required:
+        - loanId
+        - amount
+      properties:
+        loanId:
+          type: string
+        amount:
+          type: number
+    PayLoanResponse:
       type: object
       properties:
         id:
-          type: number
-          format: int64
+          type: string
         amount:
           type: number
         createDate:
           type: string
+        numberOfInstallments:
+          type: integer
+        isPaid:
+          type: boolean
         installments:
           type: array
-          $ref: '#/components/schemas/InstallmentItem'
+          items:
+            $ref: '#/components/schemas/InstallmentDetail'
+    LoanResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        amount:
+          type: number
+        createDate:
+          type: string
+        numberOfInstallments:
+          type: integer
+        isPaid:
+          type: boolean
+        installments:
+          type: array
+          items:
+            $ref: '#/components/schemas/InstallmentItem'
     InstallmentItem:
       type: object
       properties:
@@ -87,3 +168,14 @@ components:
           type: string
         amount:
           type: number
+        isPaid:
+          type: boolean
+    InstallmentDetail:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/InstallmentItem'
+      properties:
+        paidAmount:
+          type: number
+        paymentDate:
+          type: string

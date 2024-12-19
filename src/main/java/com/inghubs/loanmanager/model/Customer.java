@@ -31,4 +31,12 @@ public class Customer {
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Loan> loans;
+
+    @OneToOne(optional = false)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private User user;
+
+    public BigDecimal getAvailableCreditLimit() {
+        return creditLimit.subtract(usedCreditLimit);
+    }
 }
